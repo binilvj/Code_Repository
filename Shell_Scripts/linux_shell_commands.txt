@@ -1,0 +1,158 @@
+
+
+# Find unique headers in param file
+grep 'DSM_APP' dsm_dynamic_conversion_parameter_file_SIT.txt|cut -d ':' -f1-3|uniq
+
+
+[DSM_APP.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION.WT:wklt_dsm_app_master_loads.ST
+[DSM_APP.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION.WT:wklt_dsm_app_relational_loads.ST
+
+
+#VI Replace
+#===============
+%s/\[wklt_srvy_prmr_dtl\./\[DSM_APP\.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION\.WT:wklt_srvy_prmr_dtl\.ST/
+%s/^.*wklt_srvy_prmr_dtl\.ST:/\[wklt_srvy_prmr_dtl\./
+
+#Unique values in a column
+#===========================
+
+awk -F"|" '{print$2,$92}' shortcut_to_bes_job_hdr_test_rejects1.out|sort -u
+
+grep 'pattern' paramfile.txt|cut -d ':' -f1-3|uniq
+
+
+#Count of records by column value
+#=================================
+
+cut -d '|' -f 6  input.out|sort|awk 'BEGIN {prev="ID    Count"} {if($1!=prev)\
+{ print prev "    " count; count=1;} else {count=count+1;} prev=$1;} END {print prev "    " count;}'
+
+#Count of files by extension(with Formatted output)
+#=================================
+
+ls|cut -d '.' -f2-3|sort|awk 'BEGIN {print;print;printf "%-30s....%7s\n","ID","Count"} {if($1!=prev)\
+{ printf "%-30s....%5d\n",prev , count;count=1;} else {count=count+1;} prev=$1;} END {printf "%-30s....%5d\n",prev , count;}'
+
+
+
+#Listing Unique URLs Used in Param File
+#=======================================
+# Following is Line format targeted
+# $$V_ENDPOINTURL_GetCorrelationId=http://n01awu423:9080/correlationid/RetrieveCorrelationIdService
+# Result will look like 
+# BIL_E_BOAEFT_EXGBLL_3011_D.param : n01awu421:9080
+
+
+perl -e 'my @result; while(<>) { if ($_=~/^\$\$V_ENDPOINTURL_/) {@result=split(/\//,$_);  print $ARGV." : ".$result[2]."\n"; }}' `ls`|sort -u
+perl -e 'my $result; while(<>) { if ($_=~/^\$\$V_ENDPOINTURL_/) {$result=split(/\//,$_)[2];  print $ARGV." : ".$result."\n"; }}' `ls`|sort -u
+
+Find
+=============
+perl -n -e 'if($_=~/(^\$\$.+)(192.168.50.201|n01awu423|n01wmw060)/) { print $ARGV.":".$2."\n";}' `ls *param`
+
+#***************************************************DO NOT RUN*****************************************************************
+# Following command do in-place replacements in the files. There will be backups with the extenstion given after -pi though
+
+perl -pi.bkp_13-Oct-2010 -e '$_=~s/(^\$\$.+)(192.168.50.201|n01awu423|n01wmw060)(.*)/$1n01awu421$3/' `ls *param`
+
+perl -pi.bkp_13-Oct-2010 -e '$_=~s/(^\$\$.+)(192.168.50.201|n01awu423|n01wmw060)(.*)/$1n01awu421$3/' Z_VJBINIL_PMT_E_PAYMODE_EBPHUB_3002_D.param
+
+perl -pi.bkp-20120525 -e '$_=~s|if \[ /informat/|if \[ -f /informat/|' *.sh
+
+perl -pi.bkp.$$ -e '$_=~s/bppit/SHAREDSIT/; $_=~s/192\.168\.49\.31/n01wmw060/' *
+
+#*****************************************************DO NOT RUN****************************************************************
+
+Multi-Line Find
+======================
+
+######Looks for lines like below. Where Grep and ret are in two different lines
+#	lineitem_count=`grep -c "LineItem" $reject_dir/$new_reject_file_name".error"`
+#	ret_val=$?
+#
+#####Result will look like
+#
+#Billdue_feed_stg_FIDO_template.sh:No
+#Collection_feed_FIFO_template.sh:yes
+#EFT_and_people_soft_FIFO_template.sh:No
+
+
+perl -e 'undef $/; while(<>) { print "$ARGV:"; if ($_=~/grep.*\nret/m) {print "yes\n";} else { print "No\n";}}' `ls *template.sh`
+
+#Extract Num
+#=============
+
+filename=' 32 rows 9 successfully loaded ';\
+echo $filename;\
+out=${filename# *};\
+out=${out%%[!0-9]*};\
+echo $out
+
+##Extracts 32
+
+#Mass diff
+#============
+
+ls| xargs perl  -e 'my $command; my $result; foreach(@ARGV){ $command="diff $_ ../$_"; print $command."\n"; print system($command)."\n";}' 
+ls| xargs perl  -e 'my $command; my $result; foreach(@ARGV){ $command="diff $_ ../$_"; print $command."\n"; print system($command)."\n=================\n\n";}' >diff_file.txt
+
+#Listing all Directories containing a String
+#============================================
+##AIX##
+find /informat/infa_shared_V861 -name 'word*' -type d 2>/dev/null | xargs du|cut -f2
+##BASH#
+ls -ld `find /inform* -name 'BCP*' -type d 2>/dev/null` 
+
+#Listing file by Permission
+#==========================
+
+ls -ltr `find /inform* -name 'BCPYMTS' -type d 2>/dev/null | xargs du|cut -f2|grep -v -e 'log' -e 'archive'`|grep -v -e 'rwxrwxrwx' -e 'pm_repo'
+
+#Sum Count and Timestamp
+#=========================
+cut -c97-122 /path/file |awk -v time="`stat -c %z "/path/file" | cut -d"." -f1`" '{sum=sum+$1} END {OFS=",";print sum,NR,time}'
+
+## Duplicates 
+#==========================
+## Find duplicate Agreement Number -- Delimited file
+awk '/^[DTL|TRL]/{agmt=substr($0,29,2);id=substr($0,1,3);count[agmt]++; print NR,id,agmt;} END {OFS="|";for (j in count) print j,count[j]}' file.fix
+## Find duplicate Agreement Number -- Delimited file -- Using shell variable
+awk '/^['$delim']/{agmt=substr($0,29,2);count[agmt]++;} END {OFS="|";for (j in count) {if(count[j]>1) print j,count[j]}}' file.fix
+## Find duplicate Agreement Number -- Fixed file -- Using shell variable
+awk -v col_num=`echo $pos` -F"$delim" '{agmt=$col_num;count[agmt]++;} END {OFS="|";for (j in count) {if(count[j]>1) print j,count[j]}}' file.txt 
+
+
+#Successfull Run
+#=================
+logs;grep -R  -e 'JOB_ENDED_SUCCESSFULLY' . |grep -v SuccessCount=0
+
+#Length of all lines
+#=====================
+awk '{len = length($0);print NR,substr($0,1,3),len;}' 
+
+# Finiding files in DOS format
+perl  -e ' while(<>) { if ($_=~/\r/m) {print "$ARGV:yes\n"; close ARGV;next;}}' *
+
+
+#Sort Command
+#================
+# Demo of Sort command
+# The entire file is considered as a column
+# This command will combine both files and write output to "filename"
+# In first step the lines will be sorted by characters betwen 18-23 as numbers
+# In second step the lines will be sorted by characters betwen 7-9 as numbers in descending order. this wil not disturb the sorting done in firt step
+sort  -o filename +0.18 -0.23 -n  +0.7 -0.9 -nr file1.fix file2.fix
+
+# The entire file is considered space separated
+# This command will combine both files
+# In first sort will use the whole line except first non-space column in numeric order. ( - b may be needed)
+# In second step the lines will be sorted by characters betwen 7-9 in descending order. This wil not disturb teh sorting done in firt step
+sort -t' ' +1 -n  +0.7 -0.9 -r file1.fix file2.fix
+
+
+
+##List all Wfs
+perl -e '@result=`grep PMTCTRL * `; foreach $line(@result) { $line=~/(wf_[\w]+)/; print $1."\n"; }'|sort -u
+
+
+
