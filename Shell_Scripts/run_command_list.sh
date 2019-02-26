@@ -2,15 +2,23 @@
 # Not recommened for conditional executions, loops, or variable assignments 
 # If any command fail the script will exit
 # The script is designed to restart from the point of failure
+# Installation Instructions
+# --------------------------
+# Replace /root/script_log with appropriate path before execution
+# Keep the list of commands to be executed in file command_list.txt
+# Log Files
+# ---------
+# A new log file will be created after each execution.
+# Periodic purging of these might be needed
 ####################################################
 
 set -x   #debug mode
 
 ################ Variable assignments ####################
 # file that will hold line number of the command that was executed successfully
-count_file=/informdata/TgtFiles/OSRDEV/script_log/count_file.txt;
-# Log file will hold teh output of the commands executed
-log_file=/informdata/TgtFiles/OSRDEV/script_log/run_log`date +%Y%m%d%H%M%S`.txt;
+count_file=/root/script_log/count_file.txt;
+# Log file will hold the output of the commands executed
+log_file=/root/script_log/run_log`date +%Y%m%d%H%M%S`.txt;
 #initialise counter
 count=1  
 # Read from the count file last step number
@@ -32,8 +40,8 @@ do
 
  echo $count > $count_file  ### Writ the line number of command executed without error
  count=`expr $count + 1`  # Increment counter
-done </informdata/TgtFiles/OSRDEV/script_log/command_list.txt
+done </root/script_log/command_list.txt
 ## Loop ends
 
 echo "0" > $count_file  ## After all commands are executed, set to zero to prevent from skipping commands in next execution
-echo "load completed" >$log_file
+echo "Execution completed" >$log_file

@@ -130,7 +130,7 @@ logs;grep -R  -e 'JOB_ENDED_SUCCESSFULLY' . |grep -v SuccessCount=0
 #=====================
 awk '{len = length($0);print NR,substr($0,1,3),len;}' 
 
-# Finiding files in DOS format
+# Finding files in DOS format
 perl  -e ' while(<>) { if ($_=~/\r/m) {print "$ARGV:yes\n"; close ARGV;next;}}' *
 
 

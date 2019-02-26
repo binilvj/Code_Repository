@@ -27,7 +27,7 @@ echo "--------------------------------------------------------------------------
 scripts_dir=`dirname $0`
 #scripts_dir=/informat/infa_shared_V861/Scripts/EBP
 
-. $scripts_dir/Config/EBP_Scripts.config
+. $scripts_dir/Config/paths.config
 
 
 v_date=`date +%Y%m%d`
@@ -74,7 +74,7 @@ do
 
 Interface_name=$LINE;
 
-. $scripts_dir/Config/EBP_Scripts.config
+. $scripts_dir/Config/paths.config
 . $scripts_dir/Config/Purge_Script.config
 
 process_start
