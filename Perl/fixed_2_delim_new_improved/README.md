@@ -17,6 +17,7 @@ There will be 4 inputs
 
 ## Invocation
 _perl fixed_2_delim_new_improved.pl input_2.fix contract.txt 3 '~'_
+Samples of inputs and outputs are available in this Git folder to make it easy to try it the first time
 
 ## Installation
 perl is pre-requisite for executing this script.
