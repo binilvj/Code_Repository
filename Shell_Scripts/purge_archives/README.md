@@ -8,7 +8,6 @@ This script is designed to purge archives from following locations
 * Source File Archive
 * Target File Archive
 * Reject File Archive
-* CEF Log Archive
 * Audit Log Archive
 * Purge Script Archive
 
