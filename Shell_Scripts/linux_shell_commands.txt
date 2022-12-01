@@ -4,14 +4,11 @@
 grep 'DSM_APP' dsm_dynamic_conversion_parameter_file_SIT.txt|cut -d ':' -f1-3|uniq
 
 
-[DSM_APP.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION.WT:wklt_dsm_app_master_loads.ST
-[DSM_APP.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION.WT:wklt_dsm_app_relational_loads.ST
-
-
 #VI Replace
 #===============
-%s/\[wklt_srvy_prmr_dtl\./\[DSM_APP\.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION\.WT:wklt_srvy_prmr_dtl\.ST/
-%s/^.*wklt_srvy_prmr_dtl\.ST:/\[wklt_srvy_prmr_dtl\./
+# Commented these as these are throwing up issues in Shell syntax
+# %s/\[wklt_srvy_prmr_dtl\./\[DSM_APP\.WF:wkfl_DSM_APP_DYNAMIC_CONVERSION\.WT:wklt_srvy_prmr_dtl\.ST/
+# %s/^.*wklt_srvy_prmr_dtl\.ST:/\[wklt_srvy_prmr_dtl\./
 
 #Unique values in a column
 #===========================
@@ -46,8 +43,8 @@ ls|cut -d '.' -f2-3|sort|awk 'BEGIN {print;print;printf "%-30s....%7s\n","ID","C
 perl -e 'my @result; while(<>) { if ($_=~/^\$\$V_ENDPOINTURL_/) {@result=split(/\//,$_);  print $ARGV." : ".$result[2]."\n"; }}' `ls`|sort -u
 perl -e 'my $result; while(<>) { if ($_=~/^\$\$V_ENDPOINTURL_/) {$result=split(/\//,$_)[2];  print $ARGV." : ".$result."\n"; }}' `ls`|sort -u
 
-Find
-=============
+#Find
+#=============
 perl -n -e 'if($_=~/(^\$\$.+)(192.168.50.201|n01awu423|n01wmw060)/) { print $ARGV.":".$2."\n";}' `ls *param`
 
 #***************************************************DO NOT RUN*****************************************************************
@@ -63,8 +60,8 @@ perl -pi.bkp.$$ -e '$_=~s/bppit/SHAREDSIT/; $_=~s/192\.168\.49\.31/n01wmw060/' *
 
 #*****************************************************DO NOT RUN****************************************************************
 
-Multi-Line Find
-======================
+#Multi-Line Find
+#======================
 
 ######Looks for lines like below. Where Grep and ret are in two different lines
 #	lineitem_count=`grep -c "LineItem" $reject_dir/$new_reject_file_name".error"`
@@ -153,6 +150,95 @@ sort -t' ' +1 -n  +0.7 -0.9 -r file1.fix file2.fix
 
 ##List all Wfs
 perl -e '@result=`grep PMTCTRL * `; foreach $line(@result) { $line=~/(wf_[\w]+)/; print $1."\n"; }'|sort -u
+
+####  Added on 2022-Dec-01 ####
+
+
+#Zip file handling
+#===============
+#
+#Searching in many archives
+#
+## Listing all files
+for z in /path/*pattern*.zip; do unzip -l
+## Looking for files within the zip files
+for z in /path/*pattern*.zip; do grep  -e 'search_pattern' `unzip -l $z`&&echo $z; done;
+
+#Piped Zip
+## Finds files modified in last 3000 minutes
+## -@ accepts fil names from STDIN
+find /path/to/search -mmin -3000|zip -@ /path/to/archive/archive_$(date +"%Y%m%d_%H%M%S").zip
+
+##Mass Check
+# delimiter is assumed to be |
+IFS='|';while read i ; do wc -l $i; done < path/to/file
+
+# down samples to 10 lines and back up the orginal file
+IFS='|';while read i ; do sed -i.full '11,$ d' $i; done < path/to/file
+
+
+
+#Searching files
+#================
+#
+##By month name  using Recursive ls
+ls -Rltr|grep '*FileName*'|grep 'Jul'
+
+# Multiple files in a find command
+## /path/to/search_{a,b,c} expands to /path/to/search_a, /path/to/search_b, /path/to/search_c
+
+find /path/to/search_{a,b,c} \( -name first_file -o -name second_file -o -name third_file \)
+
+# based on permission
+## lists all directories without rwx persmission for group
+# ! may need to be escaped
+find /path/ ! -perm g=rwx -type d 
+
+## +- or \/= may be used to mean any bits or all bits based on OS
+
+#Copying file between servers
+## use rsync whenever possible
+
+## --dry-run         - Allow testing of the command
+## --ignore-existing - Does not overwrite. Even when this is not used newer files are not over written by older one
+## -v		     - provide list of all files
+## 
+rsync -v --dry-run --ignore-existing user@sources_server:/path/on/remote/server/{file1,file2,file3} /path/on/local/server
+rsync -v --dry-run --ignore-existing /path/on/local/server/{file1,file2,file3} user@target_server:/path/on/remote/server 
+
+## --files-from     - Useful for very large lists. 
+#                     File paths should be relative to source path
+#                     At target entire file path get added on top of target path
+#                     Missing paths get created
+rsync -v --files-from [user@server]:/path/to/file/file_list.txt /path/on/local/server/ user@target_server:/path/on/remote/server 
+
+scp user@sources_server:/path/on/remote/server/\{file1,file2,file3\} /path/on/local/server
+
+
+# Compare files on different servers
+#===================================
+#-y for side by side comparison
+#-  reads input from STDIN
+ssh remote.server.name "awk -F',' '{print $1, $2}' /file/path/and/name"|diff -y - <(awk -F',' '{print $1, $2}' /file/path/and/name)
+ssh remote.server.name "cat /file/path/and/name"|diff  -  /local/file/path/and/name
+
+
+#Host,group and user ID
+#=====================
+hsotname -f
+for i in 'user1' 'user2' 'user3'; do echo `id $i`; done
+
+#Change group
+chown user:group folder_or_file
+
+
+#KSH version Check
+#=================
+## Works only in KSH
+ksh;case "$KSH_VERSION" in
+	(*MIRBSD*|*PD*|*LEGACY*) printf '%s\n' "$KSH_VERSION" ;;
+	(*) [ -z "$ERRNO" ] && printf '%s\n' "${.sh.version}" || echo ksh88/86 ;;
+esac;exit
 
 
 

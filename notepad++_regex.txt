@@ -1,0 +1,59 @@
+Find Non-Word Characters
+========================
+[^\xA\xD\x20-\x7E]
+
+Add new lines in infa .Bin log files
+====================================
+([A-Z]+[A-Z0-9_:]+|WRITER_1_\*_1)9http://www.informatica.com/pcsf/logservice:LogEvent:1.0.2
+\r\n\1:
+
+
+([A-Z]+[A-Z0-9_:]+)9http://www.informatica.com/pcsf/logservice:LogEvent:1.0.2
+\r\n\1:
+
+(WRITER_1_\*_1)9http://www.informatica.com/pcsf/logservice:LogEvent:1.0.2
+\r\n\1:
+
+Logger Codes
+-------------
+(\w{2,5}_\d{4,5})[^\s]
+\1
+
+List of Informatica PC sessions and folders 
+===========================================
+s_m_[A-Za-z0-9_]+
+(prefix1|prefix2)_[A-Za-z0-9_]+
+
+Tables and Views in a SQL
+=========================
+(from|join)\s+[\w\.]+
+
+Cleaning up email list(outlook)
+===============================
+Find: (^|>;)[\w,\s\{\}-]+<
+Replace: ;
+
+## Comments - An additional semicolon will be added at the beggining of the list
+## 		Last ">" will not be removed
+
+Find: >.*('|")+.*<
+Replace: ""
+
+Convert Case
+============
+\U$1
+\L$1
+
+Remove empty lines
+===================
+Find - (^$){2,}
+Replace - ""
+
+Look Ahead and Look Behind
+==========================
+\r\n(?!>)  - Negative Look Ahead
+\r\n(?<!>) - Negative Look Behind
+\r\n(?<=>) - Positive Look Behind
+\r\n(?=>)  - Positive Look Ahead
+
+
