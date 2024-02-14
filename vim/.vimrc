@@ -17,6 +17,13 @@ set colorcolumn=80
 imap <silent><script><expr> <C-J> copilot#Accept("\<CR>")
 let g:copilot_no_tab_map = v:true
 
+" Diff setting
+if &diff
+	set wrap
+"else
+"	settings for non-diff mode
+endif
+
 "Python PEP8 Indentation
 au BufNewFile,BufRead *.py
 	\ set tabstop=4       |
@@ -74,4 +81,19 @@ set statusline+=%*
 set statusline+=%{FugitiveStatusline()}
 
 set laststatus=2
+
+"new in vim 7.4.1042
+"let g:word_count=wordcount().words
+"function WordCount()
+"    if has_key(wordcount(),'visual_words')
+"        let g:word_count=wordcount().visual_words."/".wordcount().words " count selected words
+"    else
+"        let g:word_count=wordcount().cursor_words."/".wordcount().words " or shows words 'so far'
+"    endif
+"    return g:word_count
+"endfunction
+"
+"set statusline+=\ w:%{WordCount()},
+"set laststatus=2
+
 "---------------------
